@@ -41,15 +41,19 @@ func main() {
 		panic(err)
 	}
 
-	file, err := os.Create("./client/cotacao.txt")
-	if err != nil {
-		panic(err)
-	}
+	if string(price.Usdbrl.Bid) != "" {
+		file, err := os.Create("./client/cotacao.txt")
+		if err != nil {
+			panic(err)
+		}
 
-	message := fmt.Sprintf("Dólar: %s", price.Usdbrl.Bid)
+		defer file.Close()
 
-	_, err = file.Write([]byte(message))
-	if err != nil {
-		panic(err)
+		message := fmt.Sprintf("Dólar: %s", price.Usdbrl.Bid)
+
+		_, err = file.Write([]byte(message))
+		if err != nil {
+			panic(err)
+		}
 	}
 }
