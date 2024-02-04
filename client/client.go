@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/dmarins/client-server-challenge-go/domain"
 )
 
 func main() {
@@ -31,12 +34,19 @@ func main() {
 		panic(err)
 	}
 
+	var price domain.Price
+
+	err = json.Unmarshal(body, &price)
+	if err != nil {
+		panic(err)
+	}
+
 	file, err := os.Create("./client/cotacao.txt")
 	if err != nil {
 		panic(err)
 	}
 
-	message := fmt.Sprintf("Dólar: %s", body)
+	message := fmt.Sprintf("Dólar: %s", price.Usdbrl.Bid)
 
 	_, err = file.Write([]byte(message))
 	if err != nil {
