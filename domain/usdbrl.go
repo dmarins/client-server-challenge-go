@@ -1,6 +1,9 @@
 package domain
 
+import "gorm.io/gorm"
+
 type Usdbrl struct {
+	ID         int    `json:"-" gorm:"primaryKey"`
 	Code       string `json:"-"`
 	Codein     string `json:"-"`
 	Name       string `json:"-"`
@@ -12,4 +15,5 @@ type Usdbrl struct {
 	Ask        string `json:"-"`
 	Timestamp  string `json:"-"`
 	CreateDate string `json:"-"`
+	gorm.Model `json:"-"`
 }
