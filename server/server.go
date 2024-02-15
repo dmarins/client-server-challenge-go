@@ -27,7 +27,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	if price != nil && string(price.Usdbrl.Bid) != "" {
+	if price != nil && string(price.Bid) != "" {
 		err = savePrice(ctx, price)
 		if err != nil {
 			panic(err)
@@ -62,9 +62,13 @@ func getPrice(ctx context.Context) (*domain.Price, error) {
 		return nil, err
 	}
 
-	var price domain.Price
+	var rawJson map[string]interface{}
+	json.Unmarshal(body, &rawJson)
 
-	err = json.Unmarshal(body, &price)
+	strJson, _ := json.Marshal(rawJson["USDBRL"])
+
+	var price domain.Price
+	err = json.Unmarshal(strJson, &price)
 	if err != nil {
 		return nil, err
 	}
