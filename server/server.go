@@ -24,13 +24,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	price, err := getPrice(ctx)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	if price != nil && string(price.Bid) != "" {
 		err = savePrice(ctx, price)
 		if err != nil {
-			panic(err)
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -47,11 +51,13 @@ func getPrice(ctx context.Context) (*domain.Price, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -59,6 +65,7 @@ func getPrice(ctx context.Context) (*domain.Price, error) {
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -70,6 +77,7 @@ func getPrice(ctx context.Context) (*domain.Price, error) {
 	var price domain.Price
 	err = json.Unmarshal(strJson, &price)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -82,11 +90,13 @@ func savePrice(ctx context.Context, price *domain.Price) error {
 
 	db, err := initDb()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	result := db.WithContext(ctx).Create(&price)
 	if result.Error != nil {
+		log.Println(result)
 		return result.Error
 	}
 
@@ -96,11 +106,13 @@ func savePrice(ctx context.Context, price *domain.Price) error {
 func initDb() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open("price.db"), &gorm.Config{})
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
 	err = db.AutoMigrate(&domain.Price{})
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
